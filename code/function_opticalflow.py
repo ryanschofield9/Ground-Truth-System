@@ -373,6 +373,4 @@ def main():
         create_img_subplot(middle_new, diameter_new, '132', '132', final_img, closing, flow_imgs, frame, frames)
         create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames)
 
-
-    
 main()
