@@ -63,12 +63,12 @@ def check_occurances(list):
 
 def create_list (dict): 
     #turn a dictionary with the values (key) and the count of the value (value) into a list with the correct count
-    radius_estimates_sorted = []
+    estimates_sorted = []
     for key in dict: 
         times = dict[key]
         for x in range (times):
-            radius_estimates_sorted.append(key)
-    return radius_estimates_sorted
+            estimates_sorted.append(key)
+    return estimates_sorted
 
 def create_box (radius, middle, img):
     #draw a box that replicates where the tree is thought to be 
@@ -214,35 +214,42 @@ for frame in range (70,80):
 
     middle_line = statistics.mode(all_middle)
 
-    # calculate the radius of each row  
-    radius_estimates = [] # imitialize radius estimate list 
+    # calculate the diameter of each row  
+    diameter_estimates = [] # imitialize diameter estimate list 
     for idx in range (len (all_starts)):
-        radius = all_ends[idx][0] - all_starts[idx][0]
-        radius_estimates.append(radius)
+        diameter = all_ends[idx][0] - all_starts[idx][0]
+        diameter_estimates.append(diameter)
 
-    radius_estimates_occurances = check_occurances(radius_estimates)
-    radius_estimates_sorted = create_list(radius_estimates_occurances)
-    per = 0.3
-    length_from_end = int(len(radius_estimates_sorted) * (per*2))
-    radius_estimates_new = radius_estimates_sorted[-length_from_end:-1]
-    #print(radius_estimates_new)
-    avg_new = np.average(radius_estimates_new)
-    avg = np.average(radius_estimates)
+    #reorganize list so the list is organized by least seen number to most seen numbers 
+    diameter_estimates_occurances = check_occurances(diameter_estimates)
+    diameter_estimates_sorted = create_list(diameter_estimates_occurances)
+    #change list so only the top 40% most seen values are in the list 
+    per = 0.6
+    length_from_end = int(len(diameter_estimates_sorted) * (per))
+    diameter_estimates_new = diameter_estimates_sorted[-length_from_end:-1]
+    #Average the top 40% vaues 
+    avg_new = np.average(diameter_estimates_new)
+    #average of all the values to compare 
+    avg = np.average(diameter_estimates)
 
     print(f"avg: {avg}  avg_new: {avg_new}")
     
 
-
+    #reorganize list so the list is organized by least seen number to most seen numbers
     middle_estimates_occurances = check_occurances(all_middle)
     middle_estimates_sorted = create_list(middle_estimates_occurances)
-    #print(middle_estimates_sorted)
-    per = 0.3
-    length_from_end = int(len(middle_estimates_sorted) * (per*2))
+    #change list so only the top 40% most seen values are in the list 
+    per = 0.6
+    length_from_end = int(len(middle_estimates_sorted) * (per))
     middle_estimates_new = middle_estimates_sorted[-length_from_end:-1]
-    #print(middle_estimates_new)
+    #Average the top 40% vaues
     avg_new_middle = np.average(middle_estimates_new)
+    #average of all the values to compare 
     avg_middle = np.average(all_middle)
+
     print(f"avg: {avg_middle}  avg_new: {avg_new_middle}, mode: {middle_line}")
+
+    #create a box using the middle line and the radius 
     create_box (avg_new/2, avg_new_middle, final_img)
         
     rows = final_img.shape[0]
