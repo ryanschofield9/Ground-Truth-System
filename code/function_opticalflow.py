@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw
 import seaborn as sns
 import statistics
 import io
+import os
 
 plt.rcParams["savefig.bbox"] = "tight"
 weights = Raft_Small_Weights.DEFAULT
@@ -304,7 +305,9 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     fig.add_subplot(2,2,4)
     #show image 
     plt.imshow(pic5)
-    plt.show()
+    #plt.show()
+    filename = 'video_images/'+ 'frame' + str(frame) + '.png'
+    plt.savefig(filename)
     
 def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames):
     #determine if the middle line is in the middle of the image 
@@ -351,12 +354,13 @@ def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame,
                     mult[x][y] = pic4[x-rows][y-columns]
                         
     plt.imshow(mult, cmap='gray')
-    plt.show()
+    #plt.show()
 
 
 def main():
     video_path = "c:\\Users\\ryana\\Documents\\Robotics Research\\video_trial.avi"
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
+    imgs = [] 
 
     for frame in range (70,80):
         flow_imgs = optical_flow(frames, frame)
