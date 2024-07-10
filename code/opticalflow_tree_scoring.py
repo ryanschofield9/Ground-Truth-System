@@ -72,6 +72,12 @@ def create_list (dict):
             estimates_sorted.append(key)
     return estimates_sorted
 
+def create_list_single (dict):
+    estimates = []
+    for key in dict:
+        estimates.append(key) 
+    return estimates 
+
 def create_box (radius, middle, img):
     #draw a box that replicates where the tree is thought to be 
     #calculate left side of the line 
@@ -238,6 +244,22 @@ def diameter_estimate (all_starts, all_ends):
     print(f"diameter: {diameter}  diameter_new: {diameter_new}")
     return diameter_new
         
+def diamter_options (all_starts, all_ends):
+     # calculate the diameter of each row  
+    diameter_estimates = [] # imitialize diameter estimate list 
+    for idx in range (len (all_starts)):
+        diameter = all_ends[idx][0] - all_starts[idx][0]
+        diameter_estimates.append(diameter)
+
+    #reorganize list so the list is organized by least seen number to most seen numbers 
+    diameter_estimates_occurances = check_occurances(diameter_estimates)
+    diameter_estimates_list = create_list_single(diameter_estimates_occurances)
+
+    per = 0.6
+    length_from_end = int(len(diameter_estimates_list) * (per))
+    diameters = diameter_estimates_list[-length_from_end:-1]
+    return diameters
+
 def calculate_middle_line (all_middle, middle_line) :
     #reorganize list so the list is organized by least seen number to most seen numbers
     middle_estimates_occurances = check_occurances(all_middle)
@@ -254,6 +276,62 @@ def calculate_middle_line (all_middle, middle_line) :
     print(f"middle: {middle}  middle_new: {middle_new}, mode: {middle_line}")
     return middle_new
     
+def calculate_middle_line_options (all_middle):
+    #reorganize list so the list is organized by least seen number to most seen numbers
+    middle_estimates_occurances = check_occurances(all_middle)
+    middle_estimates_list = create_list_single(middle_estimates_occurances)
+    #change list so only the top 40% most seen values are in the list 
+    per = 0.6
+    length_from_end = int(len(middle_estimates_list) * (per))
+    middles = middle_estimates_list[-length_from_end:-1]
+    return middles
+
+def calculate_col_scores(closing):
+    #add up the sum off the pixels in each row (essentially counting white pixels becuase either 255 or 0)
+    col_sum = closing.sum(axis = 0) 
+    #account for the fact that white pixels are 255 so the number of white pixels is seen easier 
+    col_sum = col_sum /255.0
+    #print(col_sum)
+    #print(len(col_sum))
+    return col_sum
+
+def score_options(diameters, middles, closing):
+    rows = closing.shape[0]
+    columns = closing.shape[1]
+    col_sum = calculate_col_scores(closing)
+    #print(col_sum)
+    cumulative_sum = np.cumsum(col_sum)
+    #print(cumulative_sum)
+    min_score = cumulative_sum[-1]
+    #print(cumulative_sum)
+    diameter_save = 0 
+    middle_save = 0
+    for diameter in diameters: 
+        for middle in middles:  
+            left_most = int(middle - diameter/2)
+            right_most = int(middle + diameter/2)
+            #print(f"diameter: {diameter}  middle: {middle}  rightmost: {right_most}  leftmost: {left_most}")
+            if left_most < 0 or right_most > 640:
+                score =  cumulative_sum[-1]
+            else: 
+                #number of white pixels in the square 
+                if left_most == 0: 
+                    white_val_inbox = cumulative_sum[right_most]-0
+                else: 
+                    white_val_inbox = cumulative_sum[right_most]-cumulative_sum[left_most-1]
+                #print(f"cumsum right:{cumulative_sum[right_most]}  cumsum left: {cumulative_sum[left_most-1]} ")
+                #number of black pixels outside the squre 
+                black_val_outbox = ((columns-(right_most -left_most +1)) * rows) - (cumulative_sum[-1] - white_val_inbox)
+                score = 2*white_val_inbox  + black_val_outbox
+            if min_score > score: 
+                min_score = score 
+                diameter_save = diameter 
+                middle_save = middle
+            #print(f"diameter: {diameter}  middle: {middle}  rightmost: {right_most}  leftmost: {left_most} score: {score}")
+            #print(f" black outside: {black_val_outbox}   white inside: {white_val_inbox}")
+    return diameter_save, middle_save, min_score
+    
+
 def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing, flow_imgs, frame, frames):
         
     #determine if the middle line is in the middle of the image 
@@ -286,14 +364,15 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
         color = (0,255,0)
     else: 
         color = (255, 0,0)
+    
     image = cv2.putText(pic5, tof1, (int(middle_new - diameter_new - 50) ,240), cv2.FONT_HERSHEY_SIMPLEX ,  
                 1, color, 3,  cv2.LINE_AA)
     image = cv2.putText(pic5, tof2, (int(middle_new+ diameter_new + 50 ),240), cv2.FONT_HERSHEY_SIMPLEX ,  
                 1, color, 3,  cv2.LINE_AA)
     #if not in center, image will say if the line is to the left or right 
     image = cv2.putText(pic5, direction, (300,400), cv2.FONT_HERSHEY_SIMPLEX ,  
-               1, color, 3,  cv2.LINE_AA)
-        
+                1, color, 3,  cv2.LINE_AA)
+     
     #create subplots and image 
     fig=plt.figure(frame)
     fig.add_subplot(2,2,1)
@@ -306,10 +385,9 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     #show image 
     plt.imshow(pic5)
     #plt.show()
-    filename = 'video_images/'+ 'frame' + str(frame) + '.png'
+    filename = 'video_images/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
     plt.savefig(filename)
-
-
+    
     
 def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames):
     #determine if the middle line is in the middle of the image 
@@ -369,14 +447,23 @@ def main():
         closing, flow_saved = filter_imgs(flow_imgs)
         all_starts, all_ends = pixel_count (closing)
         all_middle = middle_count(all_starts, all_ends)
-        diameter_new = diameter_estimate (all_starts, all_ends)
-        middle_line = statistics.mode(all_middle)
-        middle_new = calculate_middle_line(all_middle, middle_line)
+        diameters = diamter_options(all_starts, all_ends)
+        #print(diameters)
+        middle_lines = calculate_middle_line_options(all_middle)
+        #print(middle_lines)
+        diameter, middle, score = score_options(diameters, middle_lines, closing)
+        print(f"For Frame {frame}")
+        print("diameter: ", diameter, "middle: ", middle, "score: ", score)
+        
+        #diameter_new = diameter_estimate (all_starts, all_ends)
+        #middle_line = statistics.mode(all_middle)
+        #middle_new = calculate_middle_line(all_middle, middle_line)
         final_img = copy.deepcopy(closing)
         #create a box using the middle line and the radius 
-        create_box (diameter_new/2, middle_new, final_img)
+        create_box (diameter/2, middle, final_img)
         
-        create_img_subplot(middle_new, diameter_new, '132', '132', final_img, closing, flow_imgs, frame, frames)
-        create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames)
+        create_img_subplot(middle, diameter, '132', '132', final_img, closing, flow_imgs, frame, frames)
+        #create_img (middle, diameter, flow_saved, closing, final_img, frame, frames)
+        
 
 main()
