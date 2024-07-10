@@ -134,7 +134,8 @@ def filter_imgs (flow_imgs):
     #https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html
         
     #turn the image into a numpy 
-    img2 = flow_imgs[0].numpy()
+    
+    img2 = flow_imgs[0].cpu().numpy()
     # make a copy of the numpy array image 
     flow_saved = copy.deepcopy(img2)
     # save just the numpy array 
@@ -360,7 +361,7 @@ def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame,
 
 
 def main():
-    video_path = "c:\\Users\\ryana\\Documents\\Robotics Research\\video_trial.avi"
+    video_path = "/home/ryan/Ground-Truth-System/video_trial.avi"
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
     imgs = [] 
 
