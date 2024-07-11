@@ -308,9 +308,12 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     fig.add_subplot(2,2,4)
     #show image 
     plt.imshow(pic5)
+    if torch.cuda.is_available():
+        filename = 'video_images/'+ 'frame' + str(frame) + 'cuda.png'
+    else: 
+        filename = 'video_images/'+ 'frame' + str(frame) + '.png'
+    plt.savefig(filename)
     #plt.show()
-    filename = 'video_images/'+ 'frame' + str(frame) + '.png'
-    #plt.savefig(filename)
 
 
     
@@ -363,8 +366,11 @@ def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame,
 
 
 def main():
-    video_path = "C:\\Users\\ryana\\Documents\\Graduate Research\\Ground Truth System\\video_trial.avi"
-    #video_path = "/home/ryan/Ground-Truth-System/video_trial.avi"
+    if torch.cuda.is_available():
+        video_path = "/home/ryan/Ground-Truth-System/video_trial.avi"
+    else:
+        video_path = "C:\\Users\\ryana\\Documents\\Graduate Research\\Ground Truth System\\video_trial.avi"
+
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
     imgs = [] 
 

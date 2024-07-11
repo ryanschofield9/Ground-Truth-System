@@ -385,6 +385,7 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     #show image 
     plt.imshow(pic5)
     #plt.show()
+ 
     filename = 'video_images/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
     plt.savefig(filename)
     
