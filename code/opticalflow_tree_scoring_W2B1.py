@@ -437,11 +437,22 @@ def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame,
     plt.imshow(mult, cmap='gray')
     #plt.show()
 
+def write_to_file (filename, items):
+    with open(filename, 'w') as f:
+        for item in items:
+            f.write(f"{item} \n")     
+    f.close()
 
 def main():
-    video_path = "c:\\Users\\ryana\\Documents\\Robotics Research\\video_trial.avi"
+    if torch.cuda.is_available():
+        video_path = "/home/ryan/Ground-Truth-System/video_trial.avi"
+    else:
+        video_path = "C:\\Users\\ryana\\Documents\\Graduate Research\\Ground Truth System\\video_trial.avi"
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
     imgs = [] 
+
+    middles_found = [] 
+    diameters_found = [] 
 
     for frame in range (70,80):
         flow_imgs = optical_flow(frames, frame)
@@ -456,6 +467,9 @@ def main():
         print(f"For Frame {frame}")
         print("diameter: ", diameter, "middle: ", middle, "score: ", score)
         
+        diameters_found.append(diameter)
+        middles_found.append(middle)
+
         #diameter_new = diameter_estimate (all_starts, all_ends)
         #middle_line = statistics.mode(all_middle)
         #middle_new = calculate_middle_line(all_middle, middle_line)
@@ -465,6 +479,9 @@ def main():
         
         create_img_subplot(middle, diameter, '132', '132', final_img, closing, flow_imgs, frame, frames)
         #create_img (middle, diameter, flow_saved, closing, final_img, frame, frames)
+    
+    write_to_file ('video_images/W1B1/middles.txt', middles_found)
+    write_to_file ('video_images/W1B1/diameters.txt', diameters_found)
         
 
 main()
