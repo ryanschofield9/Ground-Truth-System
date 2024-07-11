@@ -139,8 +139,12 @@ def optical_flow (frames, frame):
 def filter_imgs (flow_imgs):
     #https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html
         
-    #turn the image into a numpy 
-    img2 = flow_imgs[0].numpy()
+     #turn the image into a numpy 
+    if torch.cuda.is_available():
+        img2 = flow_imgs[0].cpu().numpy()
+    else: 
+        img2 = flow_imgs[0].numpy()
+
     # make a copy of the numpy array image 
     flow_saved = copy.deepcopy(img2)
     # save just the numpy array 
@@ -311,7 +315,7 @@ def score_options(diameters, middles, closing):
             left_most = int(middle - diameter/2)
             right_most = int(middle + diameter/2)
             #print(f"diameter: {diameter}  middle: {middle}  rightmost: {right_most}  leftmost: {left_most}")
-            if left_most < 0 or right_most > 640:
+            if 0<left_most >= 640 or 0< right_most >= 640:
                 score =  cumulative_sum[-1]
             else: 
                 #number of white pixels in the square 
@@ -454,7 +458,7 @@ def main():
     middles_found = [] 
     diameters_found = [] 
 
-    for frame in range (70,80):
+    for frame in range (0, len(frames)-1): 
         flow_imgs = optical_flow(frames, frame)
         closing, flow_saved = filter_imgs(flow_imgs)
         all_starts, all_ends = pixel_count (closing)
