@@ -386,7 +386,7 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     plt.imshow(pic5)
     #plt.show()
  
-    filename = 'video_images/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
+    filename = 'video_images/W2B1/full run/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
     plt.savefig(filename)
     
     
@@ -480,8 +480,8 @@ def main():
         create_img_subplot(middle, diameter, '132', '132', final_img, closing, flow_imgs, frame, frames)
         #create_img (middle, diameter, flow_saved, closing, final_img, frame, frames)
     
-    write_to_file ('video_images/W1B1/middles.txt', middles_found)
-    write_to_file ('video_images/W1B1/diameters.txt', diameters_found)
+    write_to_file ('video_images/W2B1/middles.txt', middles_found)
+    write_to_file ('video_images/W2B1/diameters.txt', diameters_found)
         
 
 main()

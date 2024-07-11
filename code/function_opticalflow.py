@@ -308,11 +308,9 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     fig.add_subplot(2,2,4)
     #show image 
     plt.imshow(pic5)
-    filename = 'video_images/'+ 'frame' + str(frame) + '.png' 
+    filename = 'video_images/40%/full run/'+ 'frame' + str(frame) + '.png' 
     plt.savefig(filename)
     #plt.show()
-
-
     
 def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames):
     #determine if the middle line is in the middle of the image 
@@ -396,6 +394,6 @@ def main():
         create_img_subplot(middle_new, diameter_new, '132', '132', final_img, closing, flow_imgs, frame, frames)
         create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames)
     
-    write_to_file ('video_images/W1B1/middles.txt', middles_found)
-    write_to_file ('video_images/W1B1/diameters.txt', diameters_found)
+    write_to_file ('video_images/40%/middles.txt', middles_found)
+    write_to_file ('video_images/40%/diameters.txt', diameters_found)
 main()
