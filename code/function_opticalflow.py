@@ -308,10 +308,7 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     fig.add_subplot(2,2,4)
     #show image 
     plt.imshow(pic5)
-    if torch.cuda.is_available():
-        filename = 'video_images/'+ 'frame' + str(frame) + 'cuda.png'
-    else: 
-        filename = 'video_images/'+ 'frame' + str(frame) + '.png'
+    filename = 'video_images/'+ 'frame' + str(frame) + '.png' 
     plt.savefig(filename)
     #plt.show()
 
@@ -374,7 +371,9 @@ def main():
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
     imgs = [] 
 
-    for frame in range (70,80):
+    #for frame in range (70,80):
+    # minus 1 because we look at current frame and compare to frame after it 
+    for frame in range (0, len(frames)-1): 
         flow_imgs = optical_flow(frames, frame)
         closing, flow_saved = filter_imgs(flow_imgs)
         all_starts, all_ends = pixel_count (closing)
