@@ -11,7 +11,7 @@ class MoveArm(Node):
         self.sub_tof = self.create_subscription(Int64, 'tof_fake', self.callback_tof, 10)
         self.pub = self.create_publisher(TwistStamped, '/servo_node/delta_twist_cmds', 10)
         self.pub_timer = self.create_timer(1/10, self.publish_twist)
-
+        #testing
         #Creating parameters 
         self.declare_parameter('speed',0.1)
         self.declare_parameter('distance', 20)
