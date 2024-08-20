@@ -292,9 +292,9 @@ def calculate_middle_line_options (all_middle):
     return middles
 
 def calculate_col_scores(closing):
-    #add up the sum off the pixels in each row (essentially counting white pixels becuase either 255 or 0)
+    #add up the sum off the pixels in each column (essentially counting white pixels becuase either 255 or 0)
     col_sum = closing.sum(axis = 0) 
-    #account for the fact that white pixels are 255 so the number of white pixels is seen easier 
+    #account for the fact that white pixels are 255 so the number of white pixels is seen as 1 instead of 255 
     col_sum = col_sum /255.0
     #print(col_sum)
     #print(len(col_sum))
