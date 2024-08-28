@@ -300,7 +300,8 @@ def calculate_col_scores(closing):
     #print(len(col_sum))
     return col_sum
 
-def score_options(diameters, middles, closing):
+#NEED THIS FILE 
+def score_options_W1_B1(diameters, middles, closing):
     rows = closing.shape[0]
     columns = closing.shape[1]
     col_sum = calculate_col_scores(closing)
@@ -467,7 +468,7 @@ def main():
         #print(diameters)
         middle_lines = calculate_middle_line_options(all_middle)
         #print(middle_lines)
-        diameter, middle, score = score_options(diameters, middle_lines, closing)
+        diameter, middle, score = score_options_W1_B1(diameters, middle_lines, closing)
         print(f"For Frame {frame}")
         print("diameter: ", diameter, "middle: ", middle, "score: ", score)
         

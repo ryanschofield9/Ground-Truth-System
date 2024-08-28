@@ -40,6 +40,7 @@ def plot(imgs,**imshow_kwargs):
 
 #https://pytorch.org/vision/main/auto_examples/others/plot_optical_flow.html#sphx-glr-auto-examples-others-plot-optical-flow-py
 
+#NEED THIS FILE 
 def preprocess(img1_batch, img2_batch):
     #img1_batch = F.resize(img1_batch, size=[520, 960], antialias=False)
     #img2_batch = F.resize(img2_batch, size=[520, 960], antialias=False)
@@ -47,6 +48,7 @@ def preprocess(img1_batch, img2_batch):
 
 ##https://pytorch.org/vision/main/auto_examples/others/plot_optical_flow.html#sphx-glr-auto-examples-others-plot-optical-flow-py
 
+#NEED THIS FILE 
 def check_occurances(list):
     avail_nums = []
     occurances = []
@@ -63,6 +65,7 @@ def check_occurances(list):
                           key=lambda item: item[1]))
     return sorted_paired_occurances
 
+#NEED THIS FILE IF DOING AVERAGE DIAMERES 
 def create_list (dict): 
     #turn a dictionary with the values (key) and the count of the value (value) into a list with the correct count
     estimates_sorted = []
@@ -72,6 +75,7 @@ def create_list (dict):
             estimates_sorted.append(key)
     return estimates_sorted
 
+#NEED THIS FILE 
 def create_list_single (dict):
     estimates = []
     for key in dict:
@@ -104,6 +108,8 @@ def create_box (radius, middle, img):
     img = cv2.line(img,(int(middle), 0),(int(middle), 480),(155,0,0),5)
 #https://www.geeksforgeeks.org/saving-a-plot-as-an-image-in-python/
 
+#NEED THIS FILE 
+#HAVE TO ALTER TO JUST CREATE ONE MASK FROM FIRST FRAME TO HALFWAY THROUGH FRAME 
 def optical_flow (frames, frame):
         #https://pytorch.org/vision/main/auto_examples/others/plot_optical_flow.html#sphx-glr-auto-examples-others-plot-optical-flow-py
         #optical flow for the frames in the range above
@@ -136,6 +142,7 @@ def optical_flow (frames, frame):
         return flow_imgs
 #need to say to do eveyer for frames 70 - 80 
 
+#NEED THIS FILE 
 def filter_imgs (flow_imgs):
     #https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html
         
@@ -173,6 +180,7 @@ def filter_imgs (flow_imgs):
 
     return closing, flow_saved
 
+#NEED THIS FILE 
 def pixel_count (closing):
     #set pixel counting variables 
     consecutive = 0 # how many black pixels have I seen in a row 
@@ -218,6 +226,7 @@ def pixel_count (closing):
         end = [] # reset the list of end values for the next row 
     return all_starts, all_ends
     
+#NEED THIS FILE 
 def middle_count (all_starts, all_ends):
     all_middle = [] #initializes list of all the middle points in each row 
     for i in range (len(all_starts)):
@@ -226,6 +235,7 @@ def middle_count (all_starts, all_ends):
         all_middle.append(mid) 
     return all_middle
 
+#CAN USE THIS TO TAKE AVERAGE DIAMETER 
 def diameter_estimate (all_starts, all_ends): 
     # calculate the diameter of each row  
     diameter_estimates = [] # imitialize diameter estimate list 
@@ -247,7 +257,8 @@ def diameter_estimate (all_starts, all_ends):
 
     print(f"diameter: {diameter}  diameter_new: {diameter_new}")
     return diameter_new
-        
+
+#NEED THIS FILE 
 def diamter_options (all_starts, all_ends):
      # calculate the diameter of each row  
     diameter_estimates = [] # imitialize diameter estimate list 
@@ -264,6 +275,7 @@ def diamter_options (all_starts, all_ends):
     diameters = diameter_estimates_list[-length_from_end:-1]
     return diameters
 
+#CAN USE THIS TO TAKE AVERAGE MIDDLE LINE 
 def calculate_middle_line (all_middle, middle_line) :
     #reorganize list so the list is organized by least seen number to most seen numbers
     middle_estimates_occurances = check_occurances(all_middle)
@@ -279,7 +291,8 @@ def calculate_middle_line (all_middle, middle_line) :
 
     print(f"middle: {middle}  middle_new: {middle_new}, mode: {middle_line}")
     return middle_new
-    
+
+#NEED THIS FILE 
 def calculate_middle_line_options (all_middle):
     #reorganize list so the list is organized by least seen number to most seen numbers
     middle_estimates_occurances = check_occurances(all_middle)
@@ -290,16 +303,18 @@ def calculate_middle_line_options (all_middle):
     middles = middle_estimates_list[-length_from_end:-1]
     return middles
 
+#NEED THIS FILE 
 def calculate_col_scores(closing):
-    #add up the sum off the pixels in each row (essentially counting white pixels becuase either 255 or 0)
+    #add up the sum off the pixels in each column (essentially counting white pixels becuase either 255 or 0)
     col_sum = closing.sum(axis = 0) 
-    #account for the fact that white pixels are 255 so the number of white pixels is seen easier 
+    #account for the fact that white pixels are 255 so the number of white pixels is seen as 1 instead of 255 
     col_sum = col_sum /255.0
     #print(col_sum)
     #print(len(col_sum))
     return col_sum
 
-def score_options(diameters, middles, closing):
+#NEED THIS FILE 
+def score_options_W2_B1(diameters, middles, closing):
     rows = closing.shape[0]
     columns = closing.shape[1]
     col_sum = calculate_col_scores(closing)
@@ -467,7 +482,7 @@ def main():
         #print(diameters)
         middle_lines = calculate_middle_line_options(all_middle)
         #print(middle_lines)
-        diameter, middle, score = score_options(diameters, middle_lines, closing)
+        diameter, middle, score = score_options_W2_B1(diameters, middle_lines, closing)
         print(f"For Frame {frame}")
         print("diameter: ", diameter, "middle: ", middle, "score: ", score)
         
