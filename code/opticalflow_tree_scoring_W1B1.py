@@ -371,13 +371,13 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     else: 
         color = (255, 0,0)
     
-    image = cv2.putText(pic5, tof1, (int(middle_new - diameter_new - 50) ,240), cv2.FONT_HERSHEY_SIMPLEX ,  
-                1, color, 3,  cv2.LINE_AA)
-    image = cv2.putText(pic5, tof2, (int(middle_new+ diameter_new + 50 ),240), cv2.FONT_HERSHEY_SIMPLEX ,  
-                1, color, 3,  cv2.LINE_AA)
+    #image = cv2.putText(pic5, tof1, (int(middle_new - diameter_new - 50) ,240), cv2.FONT_HERSHEY_SIMPLEX ,  
+    #            1, color, 3,  cv2.LINE_AA)
+    #image = cv2.putText(pic5, tof2, (int(middle_new+ diameter_new + 50 ),240), cv2.FONT_HERSHEY_SIMPLEX ,  
+    #            1, color, 3,  cv2.LINE_AA)
     #if not in center, image will say if the line is to the left or right 
-    image = cv2.putText(pic5, direction, (300,400), cv2.FONT_HERSHEY_SIMPLEX ,  
-                1, color, 3,  cv2.LINE_AA)
+    #image = cv2.putText(pic5, direction, (300,400), cv2.FONT_HERSHEY_SIMPLEX ,  
+    #            1, color, 3,  cv2.LINE_AA)
      
     #create subplots and image 
     fig=plt.figure(frame)

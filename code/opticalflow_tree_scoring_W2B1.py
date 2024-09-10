@@ -93,19 +93,19 @@ def create_box (radius, middle, img):
     print(f"radius: {radius}, middle: {middle}, left side: {left_side}, right side: {right_side}")
 
     #draw left side line 
-    img = cv2.line(img ,(left_side, 50),(left_side, 400),(155,0,0),5)
+    img = cv2.line(img ,(left_side, 300),(left_side, 500),(155,0,0),5)
 
     #draw top line 
-    img = cv2.line(img ,(left_side, 400),(right_side, 400),(155,0,0),5)
+    img = cv2.line(img ,(left_side, 500),(right_side, 500),(155,0,0),5)
 
     #draw right side line 
-    img = cv2.line(img ,(right_side, 50),(right_side, 400),(155,0,0),5)
+    img = cv2.line(img ,(right_side, 300),(right_side, 500),(155,0,0),5)
 
     #draw bottom line 
-    img = cv2.line(img ,(right_side, 50),(left_side, 50),(155,0,0),5)
+    img = cv2.line(img ,(right_side, 300),(left_side, 300),(155,0,0),5)
 
     #draw middle line 
-    img = cv2.line(img,(int(middle), 0),(int(middle), 480),(155,0,0),5)
+    img = cv2.line(img,(int(middle), 200),(int(middle),600),(155,0,0),5)
 #https://www.geeksforgeeks.org/saving-a-plot-as-an-image-in-python/
 
 #NEED THIS FILE 
@@ -116,9 +116,9 @@ def optical_flow (frames, frame):
         batch1 = []
         batch2 = []
         frames_using = frame
-        for i in range (frames_using,frames_using+1):
-            batch1.append(frames[i])
-            batch2.append(frames[i+1])
+        frame_after =int( len(frames)) - 5
+        batch1.append(frames[frame])
+        batch2.append(frames[frame_after])
         img1_batch= torch.stack(batch1)
         img2_batch= torch.stack(batch2)
         img1_batch, img2_batch = preprocess(img1_batch, img2_batch)
@@ -181,7 +181,7 @@ def filter_imgs (flow_imgs):
     return closing, flow_saved
 
 #NEED THIS FILE 
-def pixel_count (closing):
+def pixel_count (submatrix):
     #set pixel counting variables 
     consecutive = 0 # how many black pixels have I seen in a row 
     total_black = 0 # at the end of a row how many total black pixels have I seen (excluding when there are less than the threshold value)
@@ -193,7 +193,7 @@ def pixel_count (closing):
     threshold_val = 40 # the value that there must be at least that many consecutive pixels for it to be seen as tree and not a mistake 
 
     # measure the amount of black in each row 
-    for i,x in enumerate(closing):
+    for i,x in enumerate(submatrix):
         # going across the row 
         for j,y in enumerate (x): 
             #going down the image
@@ -304,9 +304,9 @@ def calculate_middle_line_options (all_middle):
     return middles
 
 #NEED THIS FILE 
-def calculate_col_scores(closing):
+def calculate_col_scores(submatrix):
     #add up the sum off the pixels in each column (essentially counting white pixels becuase either 255 or 0)
-    col_sum = closing.sum(axis = 0) 
+    col_sum = submatrix.sum(axis = 0) 
     #account for the fact that white pixels are 255 so the number of white pixels is seen as 1 instead of 255 
     col_sum = col_sum /255.0
     #print(col_sum)
@@ -314,10 +314,10 @@ def calculate_col_scores(closing):
     return col_sum
 
 #NEED THIS FILE 
-def score_options_W2_B1(diameters, middles, closing):
-    rows = closing.shape[0]
-    columns = closing.shape[1]
-    col_sum = calculate_col_scores(closing)
+def score_options_W2_B1(diameters, middles, submatrix):
+    rows = submatrix.shape[0]
+    columns = submatrix.shape[1]
+    col_sum = calculate_col_scores(submatrix)
     #print(col_sum)
     cumulative_sum = np.cumsum(col_sum)
     #print(cumulative_sum)
@@ -383,7 +383,7 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
         color = (0,255,0)
     else: 
         color = (255, 0,0)
-    
+    '''
     image = cv2.putText(pic5, tof1, (int(middle_new - diameter_new - 50) ,240), cv2.FONT_HERSHEY_SIMPLEX ,  
                 1, color, 3,  cv2.LINE_AA)
     image = cv2.putText(pic5, tof2, (int(middle_new+ diameter_new + 50 ),240), cv2.FONT_HERSHEY_SIMPLEX ,  
@@ -391,7 +391,7 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     #if not in center, image will say if the line is to the left or right 
     image = cv2.putText(pic5, direction, (300,400), cv2.FONT_HERSHEY_SIMPLEX ,  
                 1, color, 3,  cv2.LINE_AA)
-     
+     '''
     #create subplots and image 
     fig=plt.figure(frame)
     fig.add_subplot(2,2,1)
@@ -403,10 +403,10 @@ def create_img_subplot (middle_new, diameter_new, tof1, tof2, final_img, closing
     fig.add_subplot(2,2,4)
     #show image 
     plt.imshow(pic5)
-    #plt.show()
+    plt.show()
  
-    filename = 'video_images/W2B1/full run/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
-    plt.savefig(filename)
+    #filename = 'video_images/W2B1/full run/'+ 'frame' + str(frame) + 'scoring_white2_black1.png'
+    #plt.savefig(filename)
     
     
 def create_img (middle_new, diameter_new, flow_saved, closing, final_img, frame, frames):
@@ -466,13 +466,41 @@ def main():
     if torch.cuda.is_available():
         video_path = "/home/ryan/Ground-Truth-System/video_trial.avi"
     else:
-        video_path = "C:\\Users\\ryana\\Documents\\Graduate Research\\Ground Truth System\\video_trial.avi"
+        video_path = "C:\\Users\\ryana\\Documents\\Graduate Research\\Ground_Truth_Ros\\ground_truth\\videos\\testing.avi"
     frames, _, _ = read_video(str(video_path), output_format="TCHW")
     imgs = [] 
 
     middles_found = [] 
     diameters_found = [] 
+    frame = int(len(frames)/2)
+    flow_imgs = optical_flow(frames, frame)
+    closing, flow_saved = filter_imgs(flow_imgs)
+    submatrix = closing[300:500, 0:1279]
 
+    all_starts, all_ends = pixel_count (submatrix)
+    all_middle = middle_count(all_starts, all_ends)
+    diameters = diamter_options(all_starts, all_ends)
+    #print(diameters)
+    middle_lines = calculate_middle_line_options(all_middle)
+    #print(middle_lines)
+    diameter, middle, score = score_options_W2_B1(diameters, middle_lines, submatrix)
+    print(f"For Frame {frame}")
+    print("diameter: ", diameter, "middle: ", middle, "score: ", score)
+        
+    diameters_found.append(diameter)
+    middles_found.append(middle)
+
+    #diameter_new = diameter_estimate (all_starts, all_ends)
+    #middle_line = statistics.mode(all_middle)
+    #middle_new = calculate_middle_line(all_middle, middle_line)
+    final_img = copy.deepcopy(closing)
+    #create a box using the middle line and the radius 
+    create_box (diameter/2, middle, final_img)
+        
+    create_img_subplot(middle, diameter, '132', '132', final_img, closing, flow_imgs, frame, frames)
+    #create_img (middle, diameter, flow_saved, closing, final_img, frame, frames)
+    
+    '''
     for frame in range (0, len(frames)-1): 
         flow_imgs = optical_flow(frames, frame)
         closing, flow_saved = filter_imgs(flow_imgs)
@@ -498,9 +526,9 @@ def main():
         
         create_img_subplot(middle, diameter, '132', '132', final_img, closing, flow_imgs, frame, frames)
         #create_img (middle, diameter, flow_saved, closing, final_img, frame, frames)
-    
-    write_to_file ('video_images/W2B1/middles.txt', middles_found)
-    write_to_file ('video_images/W2B1/diameters.txt', diameters_found)
+    '''
+    #write_to_file ('video_images/W2B1/middles.txt', middles_found)
+    #write_to_file ('video_images/W2B1/diameters.txt', diameters_found)
         
 
 main()
